@@ -1,1 +1,669 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
+    <title>Black Force 007 - কুইজ ইঞ্জিন</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            transition: background 0.2s ease, color 0.2s ease, border-color 0.2s;
+        }
 
+        :root {
+            --bg: #f9fafb;
+            --card-bg: #ffffff;
+            --text: #1f2937;
+            --text-secondary: #4b5563;
+            --border: #e5e7eb;
+            --primary: #3b82f6;
+            --primary-dark: #2563eb;
+            --correct: #10b981;
+            --wrong: #ef4444;
+            --timer-bg: #e2e8f0;
+            --timer-fill: #3b82f6;
+            --shadow: 0 10px 25px -5px rgba(0,0,0,0.05), 0 8px 10px -6px rgba(0,0,0,0.02);
+        }
+
+        body.dark {
+            --bg: #0a0f1a;
+            --card-bg: #1a1f2e;
+            --text: #e2e8f0;
+            --text-secondary: #94a3b8;
+            --border: #334155;
+            --primary: #818cf8;
+            --primary-dark: #6366f1;
+            --correct: #34d399;
+            --wrong: #f87171;
+            --timer-bg: #334155;
+            --timer-fill: #818cf8;
+            --shadow: 0 10px 25px -5px rgba(0,0,0,0.5);
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Tahoma', 'Noto Sans Bengali', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            padding: 16px;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .quiz-container {
+            max-width: 800px;
+            width: 100%;
+            margin: 0 auto;
+            background: var(--card-bg);
+            border-radius: 2rem;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            padding: 1.5rem;
+            border: 1px solid var(--border);
+        }
+
+        .game-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            flex-wrap: wrap;
+            margin-bottom: 0.5rem;
+        }
+        .game-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+        }
+        .header-stats {
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 1rem;
+            background: var(--card-bg);
+            padding-bottom: 0.75rem;
+            border-bottom: 2px solid var(--border);
+        }
+
+        .stat {
+            background: var(--bg);
+            padding: 6px 14px;
+            border-radius: 40px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            color: var(--text);
+        }
+
+        .timer-area {
+            background: var(--timer-bg);
+            border-radius: 40px;
+            height: 8px;
+            width: 100%;
+            margin: 12px 0 16px;
+            overflow: hidden;
+        }
+
+        .timer-fill {
+            height: 8px;
+            width: 100%;
+            background: var(--timer-fill);
+            transition: width 0.1s linear;
+        }
+
+        .question-text {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin: 20px 0 20px;
+            line-height: 1.4;
+        }
+
+        .options-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .opt-btn {
+            background: var(--bg);
+            border: 2px solid var(--border);
+            border-radius: 60px;
+            padding: 12px 18px;
+            font-size: 0.95rem;
+            text-align: left;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: var(--text);
+            font-family: inherit;
+        }
+
+        .opt-btn:hover:not(:disabled) {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+            transform: scale(0.98);
+        }
+
+        .opt-btn.correct-highlight {
+            background: var(--correct);
+            border-color: var(--correct);
+            color: white;
+        }
+
+        .opt-btn.wrong-highlight {
+            background: var(--wrong);
+            border-color: var(--wrong);
+            color: white;
+            text-decoration: line-through;
+        }
+
+        .feedback-msg {
+            background: var(--bg);
+            border-radius: 1rem;
+            padding: 12px;
+            margin: 8px 0;
+            font-weight: 500;
+            text-align: center;
+        }
+
+        .action-buttons {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            margin-top: 8px;
+        }
+
+        button {
+            background: var(--primary);
+            border: none;
+            padding: 10px 16px;
+            border-radius: 40px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            cursor: pointer;
+            color: white;
+            font-family: inherit;
+        }
+
+        button.secondary {
+            background: var(--text-secondary);
+        }
+
+        .settings-bar {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            gap: 12px;
+            margin-top: 16px;
+            padding-top: 10px;
+            border-top: 1px solid var(--border);
+        }
+
+        .toggle-group {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .badge-area {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin: 12px 0;
+        }
+
+        .badge {
+            background: #fbbf24;
+            color: #1e293b;
+            padding: 4px 12px;
+            border-radius: 40px;
+            font-size: 0.7rem;
+            font-weight: bold;
+        }
+
+        body.dark .badge {
+            background: #f59e0b;
+            color: #0f172a;
+        }
+
+        .leaderboard {
+            background: var(--bg);
+            border-radius: 1rem;
+            padding: 12px;
+            margin-top: 12px;
+        }
+
+        .result-screen {
+            text-align: center;
+            padding: 20px 0;
+        }
+
+        .name-prompt {
+            text-align: center;
+            padding: 20px;
+            background: var(--card-bg);
+            border-radius: 1rem;
+        }
+
+        .name-prompt input {
+            padding: 10px;
+            border-radius: 40px;
+            border: 1px solid var(--border);
+            background: var(--bg);
+            color: var(--text);
+            width: 80%;
+            margin: 10px 0;
+        }
+
+        @media (max-width: 550px) {
+            .quiz-container {
+                padding: 1rem;
+            }
+            .question-text {
+                font-size: 1.2rem;
+            }
+            .opt-btn {
+                padding: 10px 14px;
+                font-size: 0.85rem;
+            }
+            .stat {
+                font-size: 0.7rem;
+                padding: 4px 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="quiz-container" id="quizApp">
+    <div class="game-header">
+        <div class="game-title">⚡ BLACK FORCE 007 | কুইজ ইঞ্জিন</div>
+        <button id="themeToggleBtn" style="background: var(--primary-dark); padding: 4px 12px; font-size:0.7rem;">🌓 ডার্ক/লাইট</button>
+    </div>
+    <div id="nameSetupContainer" class="name-prompt">
+        <h3>🎮 আপনার নাম দিন</h3>
+        <input type="text" id="playerNameInput" placeholder="নাম (ইংরেজি/বাংলা)" maxlength="20">
+        <button id="startWithNameBtn">🚀 খেলা শুরু</button>
+        <p style="font-size:12px; margin-top:10px;">✅ শীর্ষ স্কোর লোকাল স্টোরেজে সংরক্ষিত হবে</p>
+    </div>
+    <div id="gameMainContainer" style="display:none;">
+        <div class="header-stats">
+            <div class="stat" id="scoreDisplay">⭐ স্কোর: 0</div>
+            <div class="stat" id="qCounter">📋 প্রশ্ন: 0/50</div>
+            <div class="stat" id="correctWrong">✅ 0 | ❌ 0</div>
+            <div class="stat" id="streakIcon">🔥 ধারা: 0</div>
+        </div>
+        <div class="timer-area">
+            <div class="timer-fill" id="timerFill" style="width: 100%"></div>
+        </div>
+        <div id="questionText" class="question-text">লোড হচ্ছে...</div>
+        <div class="options-grid" id="optionsContainer"></div>
+        <div id="feedbackMsg" class="feedback-msg"></div>
+
+        <div class="action-buttons">
+            <button id="skipBtn" class="secondary">⏩ স্কিপ</button>
+            <button id="restartGameBtn" class="secondary">🔄 রিস্টার্ট</button>
+        </div>
+
+        <div class="settings-bar">
+            <div class="toggle-group">
+                <label><input type="checkbox" id="soundToggle"> 🔊 সাউন্ড</label>
+                <label><input type="checkbox" id="vibToggle"> 📳 ভাইব্রেশন</label>
+                <button id="langToggleBtn" style="background: var(--primary-dark); padding: 6px 12px;">🇧🇩 ইং/Bn</button>
+            </div>
+        </div>
+
+        <div class="badge-area" id="badgeList"></div>
+        
+        <div class="leaderboard">
+            <strong>🏆 শীর্ষ ১০ (লোকাল লিডারবোর্ড)</strong>
+            <div id="leaderboardList">--</div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // ======================== ৫০ টি প্রশ্ন (নৈতিকতা, বন্ধু, সমাজ) ========================
+    const QUESTION_SET = [];
+    function buildQuestions() {
+        const qData = [
+            ["বন্ধু মিথ্যা বললে তুমি কী করবে?", "সাথী হওয়া", "বোঝানো সত্য বলো", "চুপ থাকা", "অন্যের কাছে বলা", 1],
+            ["পরীক্ষায় নকল করতে বন্ধু বললে?", "রাজি হওয়া", "কঠোর না বলা", "শিক্ষককে জানানো", "উপেক্ষা", 1],
+            ["কেউ টাকা ধার করে ফেরত না দিলে?", "চুপ থাকা", "স্পষ্ট ফেরত চাওয়া", "মারামারি", "অন্যকে খারাপ বলা", 1],
+            ["খারাপ কাজে বন্ধু উৎসাহ দিলে?", "সঙ্গ দেওয়া", "প্রত্যাখ্যান ও সতর্ক করা", "দেখে শুনে না বলা", "চুপ থাকা", 1],
+            ["অন্যের সম্পত্তি নষ্ট করতে বন্ধু চাপ দিলে?", "না, এটা অপরাধ", "রাজি হওয়া", "দেখা না করা", "পরে করব", 0],
+            ["বন্ধু গালি দিলে উত্তম পন্থা?", "ফিরে গালি", "ধৈর্য ধরে বোঝানো", "বন্ধুত্ব ছেড়ে দেওয়া", "মারামারি", 1],
+            ["ছোট বোনকে বন্ধু বিরক্ত করলে?", "চুপ থাকা", "কঠোর হস্তক্ষেপ", "সাথী হওয়া", "তাকে ছেড়ে দেওয়া", 1],
+            ["পরিবারের বড়কে অসম্মান দেখলে?", "চুপ থাকা", "বন্ধুকে নিষেধ করা", "তার সাথে যোগ দেওয়া", "ঘর ছেড়ে যাওয়া", 1],
+            ["অন্যের দোষ প্রচার করা উচিত?", "হ্যাঁ মজা লাগে", "না, গীবত খারাপ", "কখনো কখনো", "শুধু ঘনিষ্ঠকে", 1],
+            ["রাস্তায় কাউকে বিপদে পড়তে দেখলে?", "উপেক্ষা", "তীব্র সাহায্য", "ছবি তোলা", "পুলিশ ডাকা", 1],
+            ["বন্ধু মাদক সেবনে উৎসাহ দিলে?", "সঙ্গী হওয়া", "স্পষ্ট না বলা ও দূরে সরে যাওয়া", "চুপ থাকা", "গোপনে নেওয়া", 1],
+            ["সাইবার বুলিং করলে করণীয়?", "পাল্টা বুলিং", "প্রমাণ রাখা ও অভিযোগ", "উপেক্ষা", "ভয় পাওয়া", 1],
+            ["শিক্ষক অন্যায় করলে?", "নিরব থাকা", "বিনয়ে প্রতিবাদ করা", "স্কুল ছেড়ে দেওয়া", "ছাত্র সংঘ", 1],
+            ["বন্ধু জালিয়াতি করছে দেখলে?", "চুপ থাকা", "সতর্ক করা ও না মানলে কর্তৃপক্ষকে জানানো", "অংশ নেওয়া", "ব্ল্যাকমেইল", 1],
+            ["অফিসে দুর্নীতি দেখলে?", "যোগ দেওয়া", "উর্ধ্বতনকে জানানো", "চুপ থাকা", "ব্ল্যাকমেইল", 1],
+            ["প্রতিবেশীর গোপনীয়তা ভঙ্গ করলে?", "হাসাহাসি", "ভুল স্বীকার ও ক্ষমা চাওয়া", "আমিও করি", "উপেক্ষা", 1],
+            ["মিথ্যা সাক্ষ্য দিতে টাকা দিলে?", "টাকা নেওয়া", "প্রত্যাখ্যান ও সততা রক্ষা", "পরে বলা", "গোপন", 1],
+            ["কঠোর সত্য কথা বলায় বন্ধু রাগ করলে?", "ক্ষমা চেয়ে নেওয়া", "দৃঢ় থাকা ও বোঝানো", "ফিরে গালি", "সম্পর্ক ছিন্ন", 1],
+            ["বন্ধু চুরি করলে প্রথম করণীয়?", "সাথে চুরি", "সৎ উপদেশ ও অভিভাবককে জানানো", "চুপ থাকা", "গোপনে রাখা", 1],
+            ["অন্যের সাফল্যে হিংসা করলে?", "হিংসা করা", "ভালো কাজে মন দেওয়া", "অপমান করা", "উপেক্ষা", 1],
+            ["পাড়ার গুন্ডামি দেখলে?", "ভয়ে লুকানো", "পুলিশ ও অভিভাবককে জানানো", "সাথে মেশা", "ছবি তোলা", 1],
+            ["বন্ধু ব্যভিচার করতে বললে?", "সম্মতি দেওয়া", "স্পষ্ট নিষেধ ও দূরে থাকা", "নিজেও যাওয়া", "গোপন রাখা", 1],
+            ["সমাজে কুসংস্কার ছড়ালে?", "গুজবে অংশ নেওয়া", "যুক্তি দিয়ে প্রতিরোধ", "নীরব থাকা", "উপহাস করা", 1],
+            ["বন্ধু পুলিশের কাছে মিথ্যা বলতে টাকা দিলে?", "টাকা নেওয়া", "সততা বজায় রাখা", "পরে বলা", "গোপন", 1],
+            ["অসৎ বন্ধুকে উপদেশ দিয়ে দূরে সরে আসা?", "ঠিক, মানসিক শান্তি জরুরি", "ভুল, বন্ধু হারানো খারাপ", "তার সঙ্গ ছাড়বেন না", "সেও অসৎ থাকবে", 0],
+            ["অবৈধ সুবিধা পেতে বন্ধু চাপ দিলে?", "রাজি হওয়া", "না বলা ও সতর্ক করা", "মনে মনে রাজি", "সমর্থন", 1],
+            ["অন্যের মেধা চুরি করে বন্ধু লাভবান হলে?", "প্রশংসা করা", "নিন্দা ও ন্যায়ের পথ দেখা", "অংশ নেওয়া", "গোপন রাখা", 1],
+            ["মা-বাবাকে গালি দিলে বন্ধুকে?", "ক্ষমা চাইতে বলা ও সম্পর্ক ছিন্ন", "সাথী হওয়া", "না বলা", "চুপ থাকা", 0],
+            ["বন্ধুকে সিগারেট দিতে বলা?", "না, কঠোরভাবে বারণ", "হ্যাঁ ওর ইচ্ছা", "আমিও খাবো", "চুপ", 0],
+            ["পরীক্ষায় ফেল করায় বন্ধু আত্মহত্যার হুমকি দিলে?", "উপেক্ষা", "পরামর্শ ও সাহায্য নেওয়া", "ভয় পাওয়া", "হুমকি না নেওয়া", 1],
+            ["সংখ্যালঘুকে কটাক্ষ করলে বন্ধুকে?", "হাসা", "তীব্র প্রতিবাদ ও শিক্ষা", "সে ভালো করেছে", "গ্রুপে বলা", 1],
+            ["বদমায়েশি করে বন্ধু অপরাধী হতে চাইলে?", "তার সাথে অপরাধ", "পুলিশ ও বাবা-মাকে জানানো", "উপেক্ষা", "আমি চুপ", 1],
+            ["'কথায় কাটা' মানে উচিৎ কথা কখন দরকার?", "অহংকারে", "ভুল সংশোধন ও অন্যায় বন্ধে", "বন্ধুকে অপদস্থে", "রাগ দেখাতে", 1],
+            ["প্রতারণা করে লাভবান হলে পরবর্তী পদক্ষেপ?", "ফিরিয়ে দেওয়া ও ক্ষমা চাওয়া", "লাভ ভোগ করা", "লুকানো", "গর্ব করা", 0],
+            ["অফিসে যৌন হয়রানি দেখলে?", "নীরবতা", "তীব্র প্রতিবাদ ও আইনি ব্যবস্থা", "গুজব ছড়ানো", "উপেক্ষা", 1],
+            ["বন্ধু গুজব রটালে?", "সাথে গুজব ছড়ানো", "থামানো ও ক্ষমা চাইতে বলা", "মারামারি", "এড়িয়ে চলা", 1],
+            ["শ্রেণিকক্ষে বর্ণবাদী মন্তব্য করলে?", "চুপ থাকা", "প্রতিবাদ ও প্রধান শিক্ষক বরাবর অভিযোগ", "হাসা", "পরে বলা", 1],
+            ["অন্যের ধর্ম অবমাননা করলে?", "নিরব", "কঠোর প্রতিবাদ ও থামানো", "সহমত হওয়া", "সরিয়ে যাওয়া", 1],
+            ["ছোট ভাইকে মিথ্যা শেখায় বন্ধু?", "চুপ থাকা", "বন্ধুকে তীব্র বকা ও ভাইকে সতর্ক করা", "সমর্থন", "শারীরিক হস্তক্ষেপ", 1],
+            ["সমালোচনা করলে বন্ধু অন্যজনের কাছে বলে?", "ঘৃণা করা", "নিজের মত প্রকাশ ও সীমা নির্ধারণ", "প্রচার চালানো", "বন্ধুত্ব ভাঙা", 1],
+            ["বন্ধুর টাকা না দিয়ে অপমান করলে?", "প্রতিশোধ নেওয়া", "নিজেকে প্রত্যাহার ও সীমা বোঝানো", "অন্যকে অপমান করা", "মারামারি", 1],
+            ["সামাজিক মাধ্যমে মিথ্যা রটালে?", "শেয়ার করা", "প্রমাণসহ কঠোর জবাব", "নীরব থাকা", "হয়রানি", 1],
+            ["শিক্ষককে অসম্মান করছে বন্ধু?", "তার সাথে যোগ দেওয়া", "কঠোরভাবে নিষেধ করা", "চুপ থাকা", "ঘর ছেড়ে যাওয়া", 1],
+            ["বন্ধু গালি দিলে সঠিক প্রতিক্রিয়া?", "ধৈর্য ধরে বোঝানো", "গালি ফেরত", "মারামারি", "বন্ধুত্ব শেষ", 0],
+            ["অসহায় মানুষকে ঠকানো দেখলে?", "নিরব থাকা", "তীব্র প্রতিবাদ ও কর্তৃপক্ষকে জানানো", "অংশ নেওয়া", "উপেক্ষা", 1],
+            ["বন্ধু পরীক্ষায় নকল করছে, তুমি?", "সাহায্য করা", "নকল বন্ধ করা ও বোঝানো", "শিক্ষককে না বলা", "চুপ থাকা", 1],
+            ["সমাজের দুর্নীতির বিরুদ্ধে কঠোর ভাষায় প্রতিবাদ করা?", "শুধু মুখে বলা", "দায়িত্বশীল নাগরিকের কাজ", "সমস্যা সৃষ্টি", "অহংকার", 1],
+            ["অপ্রাপ্তবয়স্ক বন্ধুকে বিয়েতে উৎসাহ দিলে?", "সাথী হওয়া", "কঠোর নিষেধ ও অভিভাবককে জানানো", "চুপ থাকা", "গোপন রাখা", 1],
+            ["সৎ পথে থাকার জন্য কঠোর বাক্য দরকার?", "হ্যাঁ, ভুল পথে গেলে বাধা দেওয়া জরুরি", "না, নরম হওয়া ভালো", "মাঝে মাঝে", "শুধু বড়দের জন্য", 0],
+            ["বন্ধু কঠিন সময়ে অসৎ কাজ করতে চাইলে?", "উপেক্ষা", "সৎ উপদেশ ও পাশে থাকা", "সাথে অসৎ কাজ", "চুপ থাকা", 1]
+        ];
+        for(let i=0; i<qData.length && i<50; i++) {
+            const q = qData[i];
+            QUESTION_SET.push({
+                text: q[0],
+                options: [q[1], q[2], q[3], q[4]],
+                correct: q[5]
+            });
+        }
+        while(QUESTION_SET.length < 50) QUESTION_SET.push({...QUESTION_SET[0]});
+    }
+    buildQuestions();
+
+    // ---------- গ্লোবাল স্টেট ----------
+    let currentQuestionsShuffle = [];
+    let currentQIndex = 0;
+    let totalScore = 0;
+    let correctCount = 0;
+    let wrongCount = 0;
+    let streak = 0;
+    let timerInterval = null;
+    let timeLeft = 15;
+    let canAnswer = true;
+    let gameActive = true;
+    let totalStartTime = null;
+    let gameEnded = false;
+    let soundEnabled = true;
+    let vibEnabled = true;
+    let isBanglaUI = true;
+    let playerName = "";
+    
+    let currentShuffledOptions = [];
+    let currentCorrectShuffledIndex = -1;
+
+    // DOM elements
+    const nameSetupDiv = document.getElementById('nameSetupContainer');
+    const gameContainer = document.getElementById('gameMainContainer');
+    const playerNameInput = document.getElementById('playerNameInput');
+    const startBtn = document.getElementById('startWithNameBtn');
+    const questionEl = document.getElementById('questionText');
+    const optionsDiv = document.getElementById('optionsContainer');
+    const feedbackDiv = document.getElementById('feedbackMsg');
+    const scoreDisplay = document.getElementById('scoreDisplay');
+    const qCounter = document.getElementById('qCounter');
+    const correctWrongSpan = document.getElementById('correctWrong');
+    const streakSpan = document.getElementById('streakIcon');
+    const timerFill = document.getElementById('timerFill');
+    const skipBtn = document.getElementById('skipBtn');
+    const restartBtn = document.getElementById('restartGameBtn');
+    const soundToggle = document.getElementById('soundToggle');
+    const vibToggle = document.getElementById('vibToggle');
+    const themeToggle = document.getElementById('themeToggleBtn');
+    const langToggle = document.getElementById('langToggleBtn');
+    const badgeDiv = document.getElementById('badgeList');
+    const leaderboardDiv = document.getElementById('leaderboardList');
+
+    // UI Texts
+    const uiTexts = {
+        bangla: { score: '⭐ স্কোর', q: '📋 প্রশ্ন', cw: '✅ সঠিক | ❌ ভুল', streak: '🔥 ধারা', timeup: '⏰ সময় শেষ!', skipMsg: 'স্কিপ', wrongAns: '❌ ভুল! সঠিক:', correctAns: '✅ সঠিক!', bonus: 'বোনাস', streakBonus: 'ধারা বোনাস!', gameOver: 'খেলা শেষ!', playAgain: 'আবার খেলুন' },
+        english: { score: '⭐ Score', q: '📋 Q', cw: '✅ Correct | ❌ Wrong', streak: '🔥 Streak', timeup: '⏰ Time Up!', skipMsg: 'Skipped', wrongAns: '❌ Wrong! Correct:', correctAns: '✅ Correct!', bonus: 'Bonus', streakBonus: 'Streak Bonus!', gameOver: 'Game Over!', playAgain: 'Play Again' }
+    };
+    function t(key) { return isBanglaUI ? uiTexts.bangla[key] : uiTexts.english[key]; }
+
+    // সাউন্ড ও ভাইব্রেশন
+    function playBeep(type) {
+        if(!soundEnabled) return;
+        try {
+            const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.frequency.value = type === 'correct' ? 880 : 440;
+            gain.gain.value = 0.1;
+            osc.start();
+            gain.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + 0.4);
+            osc.stop(audioCtx.currentTime + 0.3);
+            audioCtx.resume();
+        } catch(e) {}
+    }
+    function vibratePattern() { if(vibEnabled && navigator.vibrate) navigator.vibrate(80); }
+
+    // লোকাল লিডারবোর্ড (localStorage)
+    function saveScoreToLeaderboard(score) {
+        let scores = JSON.parse(localStorage.getItem('bf007_leaderboard') || '[]');
+        scores.push({ name: playerName, score: score, date: Date.now() });
+        scores.sort((a,b)=>b.score - a.score);
+        scores = scores.slice(0,10);
+        localStorage.setItem('bf007_leaderboard', JSON.stringify(scores));
+        renderLeaderboard();
+    }
+    function renderLeaderboard() {
+        let scores = JSON.parse(localStorage.getItem('bf007_leaderboard') || '[]');
+        if(scores.length===0) { leaderboardDiv.innerText = 'কোন স্কোর নেই'; return; }
+        let html = '<ol>';
+        scores.forEach(s=>{ html+=`<li>${s.name} - ${s.score} পয়েন্ট</li>`; });
+        html+='</ol>';
+        leaderboardDiv.innerHTML = html;
+    }
+
+    // ব্যাজ সিস্টেম
+    function updateBadges() {
+        let html = '';
+        if(correctCount >= 5) html += '<span class="badge">🏅 সত্যের পথিক (৫)</span>';
+        if(correctCount >= 10) html += '<span class="badge">⭐ জ্ঞানী সাথী (১০)</span>';
+        if(correctCount >= 20) html += '<span class="badge">🏆 মহান ব্যক্তি (২০+)</span>';
+        if(totalScore >= 500) html += '<span class="badge">🥈 রৌপ্য (500+)</span>';
+        if(totalScore >= 1000) html += '<span class="badge">🥇 স্বর্ণ (1000+)</span>';
+        if(html === '') html = '<span>🔰 ব্যাজ জিতুন</span>';
+        badgeDiv.innerHTML = html;
+    }
+
+    // শাফল ফাংশন
+    function shuffleArray(arr) {
+        for(let i=arr.length-1;i>0;i--){ let j=Math.floor(Math.random()*(i+1)); [arr[i],arr[j]]=[arr[j],arr[i]]; }
+        return arr;
+    }
+    function resetAndShuffleQuestions() {
+        let indices = Array.from({length: QUESTION_SET.length}, (_,i)=>i);
+        currentQuestionsShuffle = shuffleArray([...indices]);
+        currentQIndex = 0;
+    }
+    
+    // প্রশ্ন লোড
+    function loadQuestion() {
+        if(!gameActive) return;
+        if(currentQuestionsShuffle.length === 0) resetAndShuffleQuestions();
+        if(currentQIndex >= currentQuestionsShuffle.length) { endGame(); return; }
+        stopTimer();
+        const qIdx = currentQuestionsShuffle[currentQIndex];
+        const q = QUESTION_SET[qIdx];
+        if(!q) { fullResetGame(); return; }
+        questionEl.innerText = q.text;
+        
+        const indices = [0,1,2,3];
+        shuffleArray(indices);
+        currentShuffledOptions = indices.map(i => q.options[i]);
+        const originalCorrectText = q.options[q.correct];
+        currentCorrectShuffledIndex = currentShuffledOptions.findIndex(opt => opt === originalCorrectText);
+        
+        optionsDiv.innerHTML = '';
+        currentShuffledOptions.forEach((opt, idx) => {
+            const btn = document.createElement('button');
+            btn.className = 'opt-btn';
+            btn.innerText = `${String.fromCharCode(65+idx)}. ${opt}`;
+            btn.addEventListener('click', () => handleAnswer(idx));
+            optionsDiv.appendChild(btn);
+        });
+        canAnswer = true;
+        timeLeft = 15;
+        updateTimerDisplay();
+        startTimer();
+        feedbackDiv.innerHTML = '';
+        updateHeaderStats();
+    }
+
+    function updateHeaderStats() {
+        scoreDisplay.innerText = `${t('score')}: ${totalScore}`;
+        qCounter.innerText = `${t('q')}: ${currentQIndex+1}/${currentQuestionsShuffle.length}`;
+        correctWrongSpan.innerText = `✅ ${correctCount} | ❌ ${wrongCount}`;
+        streakSpan.innerText = `${t('streak')}: ${streak}`;
+        updateBadges();
+    }
+
+    function startTimer() {
+        if(timerInterval) clearInterval(timerInterval);
+        timerInterval = setInterval(() => {
+            if(!canAnswer || !gameActive) return;
+            if(timeLeft <= 0) { clearInterval(timerInterval); handleTimeout(); }
+            else { timeLeft--; updateTimerDisplay(); }
+        }, 1000);
+    }
+    function stopTimer() { if(timerInterval){ clearInterval(timerInterval); timerInterval=null; } }
+    function updateTimerDisplay() { let percent = (timeLeft/15)*100; timerFill.style.width = `${Math.max(0,percent)}%`; }
+    function handleTimeout() {
+        if(!canAnswer || !gameActive) return;
+        canAnswer = false; stopTimer();
+        feedbackDiv.innerHTML = `<span style="color:var(--wrong)">${t('timeup')}</span>`;
+        wrongCount++; streak = 0; updateHeaderStats();
+        disableOptions(true);
+        const btns = document.querySelectorAll('.opt-btn');
+        if(currentCorrectShuffledIndex>=0) btns[currentCorrectShuffledIndex]?.classList.add('correct-highlight');
+        setTimeout(()=> nextQuestion(), 1300);
+    }
+    function disableOptions(disabled) { document.querySelectorAll('.opt-btn').forEach(btn => btn.disabled = disabled); }
+    function handleAnswer(selected) {
+        if(!canAnswer || !gameActive) return;
+        canAnswer = false; stopTimer();
+        const isCorrect = (selected === currentCorrectShuffledIndex);
+        const answerTimeBonus = timeLeft;
+        const btns = document.querySelectorAll('.opt-btn');
+        if(currentCorrectShuffledIndex>=0) btns[currentCorrectShuffledIndex]?.classList.add('correct-highlight');
+        if(!isCorrect && selected>=0) btns[selected]?.classList.add('wrong-highlight');
+        
+        if(isCorrect) {
+            playBeep('correct'); vibratePattern();
+            let pointsEarned = 100 + Math.floor(answerTimeBonus * 5);
+            totalScore += pointsEarned;
+            correctCount++;
+            streak++;
+            let extraBonus = 0;
+            if(streak % 3 === 0 && streak >=3) { extraBonus = 50; totalScore += extraBonus; }
+            feedbackDiv.innerHTML = `<span style="color:var(--correct)">✅ ${t('correctAns')} +${pointsEarned} ${extraBonus>0? `+${extraBonus} ${t('streakBonus')}`:''}</span>`;
+        } else {
+            playBeep('wrong'); vibratePattern();
+            wrongCount++;
+            streak = 0;
+            const correctAnsText = currentShuffledOptions[currentCorrectShuffledIndex];
+            feedbackDiv.innerHTML = `<span style="color:var(--wrong)">${t('wrongAns')} "${correctAnsText}"</span>`;
+        }
+        updateHeaderStats();
+        disableOptions(true);
+        setTimeout(()=> nextQuestion(), 1300);
+    }
+    function nextQuestion() {
+        if(!gameActive) return;
+        currentQIndex++;
+        if(currentQIndex >= currentQuestionsShuffle.length) endGame();
+        else loadQuestion();
+    }
+    function endGame() {
+        if(gameEnded) return;
+        gameActive = false; gameEnded = true;
+        stopTimer();
+        const totalTimeSec = Math.floor((Date.now() - totalStartTime)/1000);
+        saveScoreToLeaderboard(totalScore);
+        let resultHtml = `<div class="result-screen"><h2>🎉 ${t('gameOver')}</h2>
+        <p>⭐ মোট স্কোর: ${totalScore}</p><p>✅ সঠিক: ${correctCount} | ❌ ভুল: ${wrongCount}</p>
+        <p>⏱️ সময়: ${Math.floor(totalTimeSec/60)}মি ${totalTimeSec%60}সে</p>
+        <button id="playAgainFinalBtn">🔄 ${t('playAgain')}</button></div>`;
+        questionEl.innerHTML = resultHtml;
+        optionsDiv.innerHTML = '';
+        feedbackDiv.innerHTML = '';
+        document.getElementById('playAgainFinalBtn')?.addEventListener('click', ()=>{
+            fullResetGame();
+        });
+        disableOptions(true);
+    }
+    function fullResetGame() {
+        stopTimer();
+        gameActive = true; gameEnded = false;
+        totalScore = 0; correctCount = 0; wrongCount = 0; streak = 0;
+        resetAndShuffleQuestions();
+        currentQIndex = 0;
+        totalStartTime = Date.now();
+        canAnswer = true;
+        updateHeaderStats();
+        loadQuestion();
+    }
+    function manualSkip() {
+        if(!gameActive || !canAnswer) return;
+        canAnswer=false; stopTimer();
+        wrongCount++; streak=0;
+        updateHeaderStats();
+        feedbackDiv.innerHTML = `<span style="color:var(--wrong)">⏩ ${t('skipMsg')}</span>`;
+        const btns = document.querySelectorAll('.opt-btn');
+        if(currentCorrectShuffledIndex>=0) btns[currentCorrectShuffledIndex]?.classList.add('correct-highlight');
+        disableOptions(true);
+        setTimeout(()=> nextQuestion(), 800);
+    }
+
+    // ইভেন্ট বাইন্ডিং
+    startBtn.addEventListener('click', () => {
+        let name = playerNameInput.value.trim();
+        if(name === "") name = "খেলোয়াড়_" + Math.floor(Math.random()*1000);
+        playerName = name.substring(0, 20);
+        nameSetupDiv.style.display = "none";
+        gameContainer.style.display = "block";
+        renderLeaderboard();
+        fullResetGame();
+    });
+    skipBtn.onclick = ()=> { if(gameActive && !gameEnded) manualSkip(); };
+    restartBtn.onclick = ()=> { fullResetGame(); };
+    soundToggle.onchange = (e)=> { soundEnabled = e.target.checked; };
+    vibToggle.onchange = (e)=> { vibEnabled = e.target.checked; };
+    themeToggle.onclick = ()=> { document.body.classList.toggle('dark'); };
+    langToggle.onclick = ()=> { isBanglaUI = !isBanglaUI; if(!gameEnded && gameActive) updateHeaderStats(); };
+    
+    // প্রাথমিক লিডারবোর্ড রেন্ডার
+    renderLeaderboard();
+</script>
+</body>
+</html>
